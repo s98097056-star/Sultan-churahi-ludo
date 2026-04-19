@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SULTAN CHURAHI LUDO</title>
+    <meta name="monetag" content="c33ffec1da313a5fb76a9cd85673e5c4">
+    <style>
+        body { background: #0d1b2a; color: white; font-family: sans-serif; text-align: center; margin: 0; padding: 10px; }
+        h1 { color: #ffc300; margin: 10px 0; }
+        #board { width: 300px; height: 300px; background: #e0e1dd; margin: 10px auto; position: relative; border: 4px solid #ffc300; }
+       .home { width: 120px; height: 120px; position: absolute; border: 2px solid black; }
+        #red-home { background: #d90429; top: 0; left: 0; }
+        #green-home { background: #008000; top: 0; right: 0; }
+        #yellow-home { background: #ffdd00; bottom: 0; left: 0; }
+        #blue-home { background: #0033cc; bottom: 0; right: 0; }
+       .goti { width: 20px; height: 20px; border-radius: 50%; border: 2px solid black; position: absolute; z-index: 5; }
+       .cell { width: 20px; height: 20px; border: 1px solid #888; position: absolute; background: white; }
+        #dice { font-size: 40px; margin: 10px; }
+        button { padding: 12px 25px; font-size: 16px; background: #ffc300; border: none; border-radius: 8px; font-weight: bold; margin: 5px; }
+        #turn { font-size: 20px; color: #ffc300; margin: 10px; }
+        #msg { font-size: 16px; color: #2ecc71; height: 20px; }
+    </style>
+</head>
+<body>
+    <h1>👑 SULTAN CHURAHI LUDO 👑</h1>
+    <div id="turn">Red ki baari</div>
+    <div id="msg"></div>
+    <div id="board">
+        <div id="red-home" class="home"></div>
+        <div id="green-home" class="home"></div>
+        <div id="yellow-home" class="home"></div>
+        <div id="blue-home" class="home"></div>
+    </div>
+    <div id="dice">🎲</div>
+    <button onclick="rollDice()">ROLL KRO</button>
+
+<script>
+let players = ['red', 'green', 'yellow', 'blue'];
+let colors = {red:'#d90429', green:'#008000', yellow:'#ffdd00', blue:'#0033cc'};
+let current = 0, dice = 0, canRoll = true;
+let gotis = {};
+let path = []; // 52 cells ka path
+
+// Path ke 52 spots banao - simple circle
+for(let i=0; i<52; i++){
+    let angle = (i / 52) * 2 * Math.PI;
+    let x = 140 + Math.cos(angle) * 100;
+    let y = 140 + Math.sin(angle) * 100;
+    path.push({x:x, y:y});
+    let cell = document.createElement('div');
+    cell.className = 'cell';
+    cell.style.left = x+'px';
+    cell.style.top = y+'px';
+    document.getElementById('board').appendChild(cell);
+}
+
+// 4 goti har player ki
+players.forEach((p, pi) => {
+    gotis[p] = [];
+    for(let i=0; i<4; i++){
+        let g = document.createElement('div');
+        g.className = 'goti';
+        g.style.background = colors[p];
+        g.id = p+i;
+        g.onclick = () => moveGoti(p,i);
+        // Home mein rakho
+        let hx = (pi%2===0?20:200) + (i%2)*40;
+        let hy = (pi<2?20:200) + Math.floor(i/2)*40;
+        g.style.left = hx+'px';
+        g.style.top = hy+'px';
+        g.dataset.pos = -1; // -1 = home mein
+        document.getElementById('board').appendChild(g);
+        gotis[p].push(g);
+    }
+});
+
+function rollDice(){
+    if(!canRoll) return;
+    dice = Math.floor(Math.random()*6)+1;
+    document.getElementById('dice').innerText = dice;
+    canRoll = false;
+    document.getElementById('msg').innerText = dice+' aaya! Goti pe click karo';
+
+    // Check agar koi move nahi hai
+    let canMove = gotis[players[current]].some(g => {
+        let pos = parseInt(g.dataset.pos);
+        return (pos===-1 && dice===6) || (pos>=0 && pos+dice<52);
+    });
+    if(!canMove) setTimeout(nextTurn, 1500);
+}
+
+function moveGoti(p,i){
+    if(p!==players[current] || dice===0) return;
+    let g = gotis[p][i];
+    let pos = parseInt(g.dataset.pos);
+
+    // Nikalo
+    if(pos===-1 && dice===6){
+        g.dataset.pos = 0;
+        g.style.left = path[0].x+'px';
+        g.style.top = path[0].y+'px';
+        endTurn();
+        return;
+    }
+
+    // Chal
