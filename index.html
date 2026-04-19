@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sultan Churahi Ludo</title>
+  <meta name="monetag" content="c33ffec1da313a5fb76a9cd85673e5c4">
+  <style>
+    body{margin:0;font-family:Arial,sans-serif;background:#0f172a;color:white;display:flex;justify-content:center;align-items:center;min-height:100vh;padding:10px}
+    .game-container{text-align:center;background:#1e293b;padding:20px;border-radius:20px;box-shadow:0 0 30px rgba(59,130,246,0.3);width:100%;max-width:450px}
+    h1{color:#60a5fa;margin:0 0 15px 0;font-size:24px}
+    .players{display:flex;justify-content:space-around;margin-bottom:15px;gap:10px}
+    .player{background:#334155;padding:8px 15px;border-radius:10px;font-weight:bold;flex:1}
+    #p1{border:2px solid #ef4444}#p2{border:2px solid #22c55e}
+    #ludoBoard{border:3px solid #60a5fa;border-radius:10px;background:white;width:100%;max-width:400px;height:auto}
+    .controls{margin-top:15px}
+    #rollBtn{background:#3b82f6;color:white;border:none;padding:12px 30px;font-size:18px;border-radius:10px;cursor:pointer;width:100%}
+    #rollBtn:active{background:#2563eb}
+    #diceResult{font-size:30px;margin-top:10px;font-weight:bold;height:35px}
+    .credit{margin-top:15px;opacity:0.7;font-size:14px}
+  </style>
+</head>
+<body>
+  <div class="game-container">
+    <h1>SULTAN CHURAHI LUDO</h1>
+    <div class="players">
+      <div class="player" id="p1">Player 1: <span>0</span></div>
+      <div class="player" id="p2">Player 2: <span>0</span></div>
+    </div>
+    <canvas id="ludoBoard" width="400" height="400"></canvas>
+    <div class="controls">
+      <button id="rollBtn">Roll Dice</button>
+      <div id="diceResult">-</div>
+    </div>
+    <p class="credit">Made by Sultan Churahi</p>
+  </div>
+  <script>
+    const canvas=document.getElementById('ludoBoard');const ctx=canvas.getContext('2d');const rollBtn=document.getElementById('rollBtn');const diceResult=document.getElementById('diceResult');let currentPlayer=1;let p1Score=0,p2Score=0;function drawBoard(){ctx.fillStyle='#f8fafc';ctx.fillRect(0,0,400,400);ctx.strokeStyle='#cbd5e1';ctx.lineWidth=1;for(let i=0;i<=15;i++){ctx.beginPath();ctx.moveTo(i*26.66,0);ctx.lineTo(i*26.66,400);ctx.stroke();ctx.beginPath();ctx.moveTo(0,i*26.66);ctx.lineTo(400,i*26.66);ctx.stroke()}ctx.fillStyle='#ef4444';ctx.fillRect(0,0,160,160);ctx.fillStyle='#22c55e';ctx.fillRect(240,0,160,160);ctx.fillStyle='#eab308';ctx.fillRect(0,240,160,160);ctx.fillStyle='#3b82f6';ctx.fillRect(240,240,160,160);ctx.fillStyle='#1e293b';ctx.fillRect(160,160,80,80)}drawBoard();rollBtn.addEventListener('click',()=>{const roll=Math.floor(Math.random()*6)+1;diceResult.textContent=roll;if(currentPlayer===1){p1Score+=roll;document.querySelector('#p1 span').textContent=p1Score;currentPlayer=2;rollBtn.style.background='#22c55e'}else{p2Score+=roll;document.querySelector('#p2 span').textContent=p2Score;currentPlayer=1;rollBtn.style.background='#ef4444'}if(p1Score>=50){alert('Player 1 Jeet Gaya! Sultan Churahi ki taraf se mubarak!');resetGame()}else if(p2Score>=50){alert('Player 2 Jeet Gaya!');resetGame()}});function resetGame(){p1Score=0;p2Score=0;document.querySelector('#p1 span').textContent=0;document.querySelector('#p2 span').textContent=0;currentPlayer=1;rollBtn.style.background='#3b82f6';diceResult.textContent='-'}
+  </script>
+</body>
+</html>
