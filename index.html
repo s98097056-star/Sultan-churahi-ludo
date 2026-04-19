@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SULTAN CHURAHI LUDO</title>
+    <meta name="monetag" content="c33ffec1da313a5fb76a9cd85673e5c4">
+    <style>
+        body { font-family: Arial; text-align: center; background: #1a1a2e; color: white; margin: 0; padding: 20px; }
+        h1 { color: #f1c40f; text-shadow: 2px 2px 4px black; }
+        #board { width: 450px; height: 450px; margin: 20px auto; background: #fff; border: 5px solid #f1c40f; position: relative; }
+       .base { position: absolute; width: 180px; height: 180px; border: 2px solid black; }
+        #red-base { background: #e74c3c; top: 0; left: 0; }
+        #green-base { background: #2ecc71; top: 0; right: 0; }
+        #yellow-base { background: #f1c40f; bottom: 0; left: 0; }
+        #blue-base { background: #3498db; bottom: 0; right: 0; }
+       .goti { width: 30px; height: 30px; border-radius: 50%; position: absolute; border: 2px solid black; cursor: pointer; z-index: 10; }
+       .red-goti { background: #c0392b; }
+       .green-goti { background: #27ae60; }
+       .yellow-goti { background: #f39c12; }
+       .blue-goti { background: #2980b9; }
+        #dice-area { margin: 20px; }
+        #dice { font-size: 50px; background: white; color: black; width: 80px; height: 80px; line-height: 80px; margin: 0 auto; border-radius: 10px; border: 3px solid #f1c40f; }
+        button { padding: 15px 30px; font-size: 18px; background: #f1c40f; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; margin: 10px; }
+        button:hover { background: #f39c12; }
+        #turn { font-size: 24px; margin: 10px; color: #f1c40f; }
+        #winner { font-size: 30px; color: #2ecc71; font-weight: bold; display: none; }
+    </style>
+</head>
+<body>
+    <h1>👑 SULTAN CHURAHI LUDO 👑</h1>
+    <div id="turn">Red ki baari hai</div>
+    <div id="winner"></div>
+
+    <div id="board">
+        <div id="red-base" class="base"></div>
+        <div id="green-base" class="base"></div>
+        <div id="yellow-base" class="base"></div>
+        <div id="blue-base" class="base"></div>
+        <!-- Goti yahan JS se banengi -->
+    </div>
+
+    <div id="dice-area">
+        <div id="dice">🎲</div>
+        <button onclick="rollDice()">ROLL DICE</button>
+        <button onclick="resetGame()">NEW GAME</button>
+    </div>
+
+    <p>Made by Sultan Churahi | 2-4 Players</p>
+
+    <script>
+        let currentPlayer = 0;
+        let diceValue = 0;
+        let players = ['red', 'green', 'yellow', 'blue'];
+        let positions = { red: [-1,-1,-1,-1], green: [-1,-1,-1,-1], yellow: [-1,-1,-1,-1], blue: [-1,-1,-1,-1] };
+        let gameStarted = false;
+
+        function initGame() {
+            const board = document.getElementById('board');
+            players.forEach((color, pIdx) => {
+                for(let i = 0; i < 4; i++) {
+                    const goti = document.createElement('div');
+                    goti.className = `goti ${color}-goti`;
+                    goti.id = `${color}-${i}`;
+                    goti.onclick = () => moveGoti(color, i);
+                    goti.style.left = (pIdx % 2 === 0? 30 : 390) + (i % 2) * 40 + 'px';
+                    goti.style.top = (pIdx < 2? 30 : 390) + Math.floor(i / 2) * 40 + 'px';
+                    board.appendChild(goti);
+                }
+            });
+        }
+
+        function rollDice() {
+            if(document.getElementById('winner').style.display === 'block') return;
+            diceValue = Math.floor(Math.random() * 6) + 1;
+            document.getElementById('dice').innerText = diceValue;
+            gameStarted = true;
+
+            // Check if player can move
+            const canMove = positions[players[currentPlayer]].some(pos =>
+                (pos === -1 && diceValue === 6) || (pos >= 0 && pos + diceValue <= 56)
+            );
+
+            if(!canMove) {
+                setTimeout(nextTurn, 1000);
+            }
+        }
+
+        function moveGoti(color, idx) {
+            if(players[currentPlayer]!== color || diceValue === 0) return;
+            if(document.getElementById('winner').style.display === 'block') return;
+
+            let pos = positions[color][idx];
+
+            // Goti nikalna
+            if(pos === -1 && diceValue === 6) {
+                positions[color][idx] = 0;
+                updateGotiPosition(color, idx, 0);
+                diceValue = 0;
+                if(diceValue!== 6) nextTurn();
+                return;
+            }
+
+            // Goti chalana
+            if(pos >= 0 && pos + diceValue <=
